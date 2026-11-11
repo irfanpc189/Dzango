@@ -1,0 +1,34 @@
+{
+  "name": "dzonga",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "audit:images": "tsx scripts/audit-images.ts",
+    "audit:facts": "tsx scripts/audit-facts.ts",
+    "test:audit-facts": "tsx scripts/test-audit-facts.ts",
+    "credits:export": "tsx scripts/export-image-credits.ts",
+    "credits:import": "tsx scripts/import-image-credits.ts",
+    "credits:prefill": "tsx scripts/prefill-image-credits.ts",
+    "credits:sync": "tsx scripts/sync-image-registry.ts",
+    "credits:report": "tsx scripts/report-image-credits.ts",
+    "images:fetch": "tsx scripts/fetch-commons-images.ts",
+    "build": "npm run audit:images && npm run audit:facts && next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@types/node": "^20.14.12",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "gsap": "^3.13.0",
+    "lenis": "^1.3.4",
+    "next": "^14.2.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.5.4"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.15"
+  }
+}

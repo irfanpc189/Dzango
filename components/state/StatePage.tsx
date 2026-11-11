@@ -1,0 +1,6 @@
+import Link from 'next/link';
+import type { StateRecord } from '../../data/states';
+import { getDestination } from '../../data/destinations';
+import RegistryImage from '../images/RegistryImage';
+import { getImage } from '../../data/images';
+export default function StatePage({ state }: { state: StateRecord }) { const destinations = state.destinations.map(getDestination).filter(Boolean); const image = state.heroImage ? getImage(state.heroImage) : null; return <main className="state-page"><header className="state-hero"><p className="eyebrow">{state.kind.replace('-', ' ')}</p><h1>{state.name}</h1>{state.intro ? <p>{state.intro}</p> : <p>Content coming soon.</p>}{image && <div className="state-hero-image"><RegistryImage src={image.file} alt={image.alt} fill /></div>}</header>{destinations.length ? <section className="state-destinations"><p className="eyebrow">Destinations</p><div className="state-grid">{destinations.map((destination) => destination && <Link href={`/destinations/${destination.id}`} key={destination.id}><article><h2>{destination.title}</h2><p>{destination.tagline}</p></article></Link>)}</div></section> : null}{state.facts ? <section className="state-facts"><p className="eyebrow">Verified travel facts</p><p>{state.facts.bestSeason?.value}</p></section> : null}</main>; }

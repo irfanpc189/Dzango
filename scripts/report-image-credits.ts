@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { images } from '../data/images';
+
+const root = process.cwd(); const sourcesPath = path.join(root, 'image-sources.csv'); const quarantine = process.argv.includes('--quarantine');
+const lines = fs.existsSync(sourcesPath) ? fs.readFileSync(sourcesPath, 'utf8').split(/\r?\n/).slice(1).filter(Boolean) : [];
+const fields = (line: string) => { const out: string[] = []; let cell = '', quoted = false; for (let i = 0; i < line.length; i++) { const c = line[i]; if (quoted && c === '"' && line[i + 1] === '"') { cell += '"'; i++; continue; } if (c === '"') { quoted = !quoted; continue; } if (!quoted && c === ',') { out.push(cell); cell = ''; continue; } cell += c; } out.push(cell); return out; };
+const normalize = (value: string) => value.replace(/\\/g, '/').replace(/^.*\/public\//i, '/').replace(/^\//, '/');
+const sourceByFile = new Map(lines.map((line) => { const row = fields(line); return [normalize(row[0] ?? ''), row[2] ?? ''] as [string, string]; }));
+const appRoot = path.join(root, 'app'); const appFiles: string[] = []; const walk = (dir: string) => fs.readdirSync(dir, { withFileTypes: true }).forEach((entry) => { const full = path.join(dir, entry.name); if (entry.isDirectory()) walk(full); else appFiles.push(fs.readFileSync(full, 'utf8')); }); walk(appRoot); const sourceText = appFiles.join('\n');
+const registryByFile = new Map(Object.entries(images).map(([id, image]) => [normalize(image.file), id])); const categories = new Map<string, number>(); let moved = 0; let registrySource = fs.readFileSync(path.join(root, 'data', 'images.ts'), 'utf8');
+const bad = Array.from(sourceByFile.entries()).filter(([file, hostUrl]) => { let host = ''; try { host = new URL(hostUrl).hostname.toLowerCase(); } catch { } const isBad = !host || /pinimg\.com|gstatic\.com|google\.com/i.test(host); if (isBad) categories.set(host || 'empty', (categories.get(host || 'empty') ?? 0) + 1); return isBad; });
+console.log(`Images: ${Object.keys(images).length}`); console.log(`Cleared: ${Object.values(images).filter((image) => image.status === 'cleared').length}`); console.log('Host categories:'); for (const [host, count] of Array.from(categories)) console.log(`- ${host}: ${count}`); console.log(`\nQuarantine candidates: ${bad.length}`);
+for (const [file] of Array.from(bad)) { const id = registryByFile.get(file) ?? '(not registered)'; const references = id === '(not registered)' ? 0 : Array.from(sourceText.matchAll(new RegExp(`['\"]${id}['\"]`, 'g'))).length; const label = references ? 'NEEDS REPLACEMENT' : 'unreferenced'; console.log(`${label}\t${file}\t${id}\treferences=${references}`); if (quarantine && !references && id !== '(not registered)') { const source = path.join(root, 'public', file.replace(/^\//, '')); const destination = path.join(root, '_quarantine', file.replace(/^\//, '')); fs.mkdirSync(path.dirname(destination), { recursive: true }); fs.renameSync(source, destination); registrySource = registrySource.replace(`'${file.replace(/^\/destination\//, '')}',`, ''); moved++; } }
+if (quarantine) fs.writeFileSync(path.join(root, 'data', 'images.ts'), registrySource, 'utf8');
+if (quarantine) console.log(`\nQuarantined: ${moved}`);

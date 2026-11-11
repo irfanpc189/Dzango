@@ -1,0 +1,11 @@
+[
+  { "destinationId": "ladakh", "query": "Pangong Tso", "count": 4 },
+  { "destinationId": "ladakh", "query": "Nubra Valley", "count": 4 },
+  { "destinationId": "ladakh", "query": "Leh Palace", "count": 4 },
+  { "destinationId": "ladakh", "query": "Thiksey Monastery", "count": 4 }
+  ,{ "destinationId": "ladakh", "query": "Leh Ladakh", "count": 4 }
+  ,{ "destinationId": "ladakh", "query": "Nubra Valley Diskit", "count": 4 }
+  ,{ "destinationId": "ladakh", "query": "Hemis Monastery", "count": 4 }
+  ,{ "destinationId": "ladakh", "query": "Khardung La", "count": 4 }
+  ,{ "destinationId": "ladakh", "query": "Tso Moriri", "count": 4 }
+]
